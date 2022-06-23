@@ -135,4 +135,19 @@ spec:
           {{- if .Values.resources }}
           resources: {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
-
+          {{- if .Values.persistence.enabled }}
+          volumeMounts:
+            - name: datadir
+              readOnly: false
+              mountPath: {{ .Values.persistence.mountPath }}
+      volumes:
+        {{- if .Values.persistence.existingClaim }}
+        - name: datadir
+          persistentVolumeClaim:
+            claimName: {{ printf "%s" (tpl .Values.persistence.existingClaim .) }}
+        {{- else }}
+        - name: datadir
+          persistentVolumeClaim:
+            claimName: {{ template "common.names.fullname" . }}
+        {{- end }}
+          {{- end }}

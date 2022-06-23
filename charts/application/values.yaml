@@ -13,6 +13,7 @@ global:
   ##   - myRegistryKeySecretName
   ##
   imagePullSecrets: []
+  storageClass: ""
 
 ## @section Common parameters
 
@@ -35,10 +36,14 @@ clusterDomain: cluster.local
 ##
 extraDeploy: []
 ## @param commonLabels Add labels to all the deployed resources
-##
+## E.g:
+## commonLabels: 
+##   app.kubernetes.io/component: application
 commonLabels: {}
 ## @param commonAnnotations Add annotations to all the deployed resources
-##
+## E.g:
+## commonAnnotations: 
+##   app.kubernetes.io/component: application
 commonAnnotations: {}
 
 ## Enable diagnostic mode in the deployment(s)/statefulset(s)
@@ -70,7 +75,7 @@ diagnosticMode:
 image:
   registry: swr.cn-north-1.myhuaweicloud.com
   repository: kongyu/springboot-helloworld
-  tag: v1.0
+  tag: v1.1
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: https://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -91,14 +96,20 @@ hostAliases: []
 ## Command and args for running the container (set to default if not set). Use array form
 ## @param command Override default container command (useful when using custom images)
 ## @param args Override default container args (useful when using custom images)
-##
+## E.g:
+## command: 
+##   - /bin/bash
+## args:
+##   - -ce
+##   - java ${JAVA_OPTS} -jar /opt/app.jar
+
 command: []
 args: []
 ## @param extraEnvVars Extra environment variables to be set on application containers
 ## E.g:
 ## extraEnvVars:
-##   - name: FOO
-##     value: BAR
+##   - name: JAVA_OPTS
+##     value: "-server -Xms1g -Xmx1g"
 ##
 extraEnvVars: []
 ## @param extraEnvVarsCM ConfigMap with extra environment variables
@@ -172,7 +183,9 @@ hostIPC: false
 nodeSelector: {}
 ## @param tolerations Tolerations for pod assignment. Evaluated as a template.
 ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
-##
+## E.g:
+## nodeSelector:
+##   name: JAVA_OPTS
 tolerations: {}
 ## @param priorityClassName application pods' priorityClassName
 ##
@@ -323,13 +336,19 @@ customReadinessProbe: {}
 ## @param autoscaling.maxReplicas Maximum number of replicas to scale out
 ## @param autoscaling.targetCPU Target CPU utilization percentage
 ## @param autoscaling.targetMemory Target Memory utilization percentage
-##
+## e.g:
+## autoscaling:
+##   enabled: false
+##   minReplicas: "3"
+##   maxReplicas: "10"
+##   targetCPU: "80"
+##   targetMemory: "80"
 autoscaling:
   enabled: false
-  minReplicas: "3"
-  maxReplicas: "10"
-  targetCPU: "80"
-  targetMemory: "80"
+  minReplicas: ""
+  maxReplicas: ""
+  targetCPU: ""
+  targetMemory: ""
 ## @param extraVolumes Array to add extra volumes
 ##
 extraVolumes: []
@@ -401,6 +420,13 @@ service:
   ports:
     http: 8080
     https: ""
+  ## Service ports name
+  ## @param service.portNames.http Service HTTP port name
+  ## @param service.portNames.https Service HTTPS port name
+  ##
+  portNames:
+    http: "http"
+    https: "https"
   ##
   ## @param service.nodePorts [object] Specify the nodePort(s) value(s) for the LoadBalancer and NodePort service types.
   ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
@@ -413,8 +439,8 @@ service:
   ## Example: Mapping the https listener to targetPort http [http: https]
   ##
   targetPort:
-    http: http
-    https: https
+    http: 8080
+    https: ""
   ## @param service.clusterIP application service Cluster IP
   ## e.g.:
   ## clusterIP: None
@@ -628,3 +654,48 @@ healthIngress:
   ## Useful when looking for additional customization, such as using different backend
   ##
   extraRules: []
+
+## @section Persistence parameters
+##
+
+persistence:
+  ## @param persistence.enabled Enable application data persistence using PVC
+  ##
+  enabled: false
+  ## @param persistence.storageClass PVC Storage Class for application data volume
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##  storageClass: "openebs-hostpath"
+  storageClass: ""
+  ## @param persistence.selector Selector to match an existing Persistent Volume
+  ## selector:
+  ##   matchLabels:
+  ##     app: my-app
+  ##
+  selector: {}
+  ## @param persistence.accessModes PVC Access Modes for application data volume
+  ##
+  accessModes:
+    - ReadWriteOnce
+  ## @param persistence.existingClaim Provide an existing PersistentVolumeClaims
+  ## The value is evaluated as a template
+  ## So, for example, the name can depend on .Release or .Chart
+  ##
+  existingClaim: ""
+  ## @param persistence.mountPath The path the volume will be mounted at
+  ## Note: useful when using custom application images
+  ##
+  mountPath: /opt/logs
+  ## @param persistence.size PVC Storage Request for application data volume
+  ## If you change this value, you might have to adjust `application.diskFreeLimit` as well
+  ##
+  size: 10Gi
+  ## @param persistence.annotations Persistence annotations. Evaluated as a template
+  ## Example:
+  ## annotations:
+  ##   example.io/disk-volume-type: SSD
+  ##
+  annotations: {}
