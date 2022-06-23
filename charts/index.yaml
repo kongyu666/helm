@@ -10,11 +10,11 @@ entries:
       tags:
       - bitnami-common
       version: 1.13.1
-    description: A Helm chart for Kubernetes application template
+    description: A Helm chart for Kubernetes java application template
     digest: c69bde0aa39c29375a08ce2f8da0f27d409097985fd816e64f32a7a65c5ec0f7
     name: application
     type: application
     urls:
-    - https://github.com/kongyu666/helm/releases/download/application/application-1.0.0.tgz
-    version: 1.0.0
+    - https://github.com/kongyu666/helm/releases/download/application/application-1.2.0.tgz
+    version: 1.2.0
 generated: "2022-06-22T10:17:37.139534564+08:00"

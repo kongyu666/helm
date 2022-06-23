@@ -236,6 +236,15 @@ containerSecurityContext:
 containerPorts:
   http: 8080
   https: ""
+## @param configuration application configuration (application.properties) file to be used for java.
+configmap:
+  enabled: false
+  name: application.yaml
+  mountPath: /opt/application.yaml
+  configuration: |-
+    # Changing the port Number.
+    server:
+    port: 8888
 ## application containers' resource requests and limits
 ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
 ## We usually recommend not to specify default resources and to leave this as a conscious

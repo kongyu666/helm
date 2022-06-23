@@ -68,3 +68,14 @@ Return the proper application image name
 {{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global) }}
 {{- end -}}
 
+
+{{/*
+Return true if a configmap object should be created for application;
+*/}}
+{{- define "application.createConfigmap" -}}
+{{- if and .Values.configuration (not .Values.existingConfigmap) }}
+    {{- true -}}
+{{- else -}}
+{{- end -}}
+{{- end -}}
+
